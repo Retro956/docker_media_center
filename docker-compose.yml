@@ -1,0 +1,59 @@
+version: '2'
+services:
+
+  db:
+    image: mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    env_file:
+      - .env
+    volumes:
+      - ${SQL_VOLUME}:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${SQL_PASSWORD}
+    networks:
+      media:
+        ipv4_address: 172.20.0.8
+
+  nextcloud:
+    image: nextcloud
+    ports:
+      - ${NEXTCLOUD_PORT}:80
+    links:
+      - db
+    volumes:
+      - ${NEXTCLOUD_VOLUME}:/var/www/html
+    depends_on:
+      - db
+    networks:
+      media:
+        ipv4_address: 172.20.0.3
+
+  plex:
+    image: plexinc/pms-docker
+    restart: on-failure
+    volumes:
+      - ${PLEX_VOLUME_CONFIG}:/config
+      - ${PLEX_VOLUME_DATA}:/data
+    ports:
+      - ${PLEX_PORT}:32400
+    network_mode: "host"
+    environment:
+      - VERSION=latest
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    environment:
+      - TZ=America/New_York
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --debug true --schedule "0 0 3 * * *"
+
+networks:
+  media:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
