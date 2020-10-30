@@ -8,3 +8,6 @@ of the changes I add.  Typically, I do not update this very often.
 Be sure to take a look at the docker-compose.yml file.  In there, you 
 will see a few of my .env variables.  You can either add your own 
 variables here or you can create your own .env file and map those.
+
+After that, just run "sudo docker-compose pull && sudo docker-compose up -d" 
+and off you go.
