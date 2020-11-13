@@ -40,15 +40,19 @@ services:
     environment:
       - VERSION=latest
 
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
+  ouroboros:
+    container_name: ouroboros
+    hostname: ouroboros
+    image: pyouroboros/ouroboros
     environment:
+      - CLEANUP=true
+      - CRON="0 3 * * *"
+      - LOG_LEVEL=info
+      - SELF_UPDATE=true
       - TZ=America/New_York
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /root/.docker/config.json:/config.json
-    command: --debug true --schedule "0 0 3 * * *"
 
 networks:
   media:
